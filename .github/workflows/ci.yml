@@ -11,10 +11,9 @@ env:
   ENABLE_LINT: false
   ENABLE_TESTS: true
 
-
 jobs:
   scan_ruby:
-    if: env.ENABLE_RUBY_SCAN == 'true'
+    if: ${{ env.ENABLE_RUBY_SCAN == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -28,7 +27,7 @@ jobs:
         run: bin/brakeman --no-pager
 
   scan_js:
-    if: env.ENABLE_JS_SCAN == 'true'
+    if: ${{ env.ENABLE_JS_SCAN == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -42,7 +41,7 @@ jobs:
         run: bin/importmap audit
 
   lint:
-    if: env.ENABLE_LINT == 'true'
+    if: ${{ env.ENABLE_LINT == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -56,7 +55,7 @@ jobs:
         run: bin/rubocop -f github
 
   test:
-    if: env.ENABLE_TESTS == 'true'
+    if: ${{ env.ENABLE_TESTS == 'true' }}
     runs-on: ubuntu-latest
     services:
       postgres:
