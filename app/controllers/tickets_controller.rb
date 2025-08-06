@@ -7,8 +7,11 @@ class TicketsController < ApplicationController
   end
 
   def show
-    authorize @ticket
-  end
+  @ticket = Ticket.find(params[:id])
+  @comments = @ticket.comments
+  @comment = @ticket.comments.build
+end
+
 
   def new
     @ticket = current_user.tickets.build
