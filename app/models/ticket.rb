@@ -1,5 +1,9 @@
 class Ticket < ApplicationRecord
   belongs_to :user
-  belongs_to :dev
-  belongs_to :qa
+  belongs_to :dev, foreign_key: :dev_id, class_name: 'User'
+  belongs_to :qa, foreign_key: :qa_id, class_name: 'User'
+
+  validates :title, presence: true
+  validates :description, presence: true  
+  validates :status, presence: true, inclusion: { in: %w[open in_progress closed] } 
 end
