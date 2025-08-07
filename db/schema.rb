@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_07_113722) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_07_114147) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "tickets", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.string "status"
+    t.bigint "user_id", null: false
+    t.bigint "dev_id", null: false
+    t.bigint "qa_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dev_id"], name: "index_tickets_on_dev_id"
+    t.index ["qa_id"], name: "index_tickets_on_qa_id"
+    t.index ["user_id"], name: "index_tickets_on_user_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -28,4 +42,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_07_113722) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "tickets", "users"
+  add_foreign_key "tickets", "users", column: "dev_id"
+  add_foreign_key "tickets", "users", column: "qa_id"
 end
