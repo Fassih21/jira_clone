@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_07_114746) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_07_115044) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -23,6 +23,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_07_114746) do
     t.datetime "updated_at", null: false
     t.index ["ticket_id"], name: "index_comments_on_ticket_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "histories", force: :cascade do |t|
+    t.string "from_status"
+    t.string "to_status"
+    t.bigint "user_id", null: false
+    t.bigint "ticket_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ticket_id"], name: "index_histories_on_ticket_id"
+    t.index ["user_id"], name: "index_histories_on_user_id"
   end
 
   create_table "tickets", force: :cascade do |t|
@@ -55,6 +66,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_07_114746) do
 
   add_foreign_key "comments", "tickets"
   add_foreign_key "comments", "users"
+  add_foreign_key "histories", "tickets"
+  add_foreign_key "histories", "users"
   add_foreign_key "tickets", "users"
   add_foreign_key "tickets", "users", column: "dev_id"
   add_foreign_key "tickets", "users", column: "qa_id"
