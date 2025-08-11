@@ -1,5 +1,4 @@
 class TicketPolicy < ApplicationPolicy
-
   def index?
     user.admin? || user.dev? || user.qa? || user.user?
   end
@@ -35,11 +34,8 @@ class TicketPolicy < ApplicationPolicy
   def destroy?
     user.admin?
   end
-  end
-
 
   class Scope < ApplicationPolicy::Scope
-    # NOTE: Be explicit about which records you allow access to!
     # def resolve
     #   scope.all
     # end
