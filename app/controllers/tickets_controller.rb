@@ -52,26 +52,6 @@ class TicketsController < ApplicationController
    end
   end
 
-  def assign
-    authorize @ticket, :assign?
-
-    if @ticket.update(ticket_params)
-      redirect_to @ticket, notice: "Ticket assigned successfully."
-    else
-      render :edit
-    end
-  end
-
-  def mark_done
-    authorize @ticket, :mark_done?
-
-    if @ticket.update(status: "done")
-      redirect_to @ticket, notice: "Ticket marked as done."
-    else
-      render :edit
-    end
-  end
-
   private
 
   def set_ticket
