@@ -36,6 +36,17 @@ class TicketPolicy < ApplicationPolicy
   end
 
   class Scope < ApplicationPolicy::Scope
-   
+    def resolve
+      case user.role
+      when "admin"
+        scope.all
+      when "dev"
+        scope.where(assigned_developer_id: user.id)
+      when "qa"
+        scope.where(assigned_qa_id: user.id)
+      when "user"
+        scope.where(creator_id: user.id)
+      end
+    end
   end
 end

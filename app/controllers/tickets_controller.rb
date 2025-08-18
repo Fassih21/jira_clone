@@ -4,18 +4,7 @@ class TicketsController < ApplicationController
   after_action :verify_authorized, except: :index
 
   def index
-    @tickets = case current_user.role
-    when "admin"
-                 Ticket.all
-    when "dev"
-                 Ticket.where(assigned_developer_id: current_user.id)
-    when "qa"
-                 Ticket.where(assigned_qa_id: current_user.id)
-    when "user"
-                 Ticket.where(creator_id: current_user.id)
-    else
-                 Ticket.none
-    end
+        @tickets=policy_scope(Ticket)
   end
 
   def show
