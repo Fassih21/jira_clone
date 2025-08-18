@@ -54,8 +54,13 @@ class TicketsController < ApplicationController
 
   def destroy
     authorize @ticket
-    @ticket.destroy
-    redirect_to tickets_path, notice: "Ticket deleted successfully."
+   if @ticket.destroy
+    redirect_to tickets_path,
+      notice: "Ticket deleted successfully."
+   else
+    redirect_to ticket_path(@ticket),
+      alert: "Unable to delete Ticket."
+   end
   end
 
   def assign
