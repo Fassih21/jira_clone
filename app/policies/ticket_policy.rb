@@ -28,7 +28,7 @@ class TicketPolicy < ApplicationPolicy
   end
 
   def mark_done?
-    user.admin? || user.qa?
+    admin_or_qa?
   end
 
   def destroy?
