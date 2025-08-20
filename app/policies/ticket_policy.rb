@@ -1,26 +1,21 @@
 class TicketPolicy < ApplicationPolicy
   def index?
-    user.admin? || user.dev? || user.qa? || user.user?
+    user.present?
   end
 
   def show?
     return true if user.admin?
-
-    if user.dev?
-      record.assigned_developer_id == user.id
-    elsif user.qa?
-      record.assigned_qa_id == user.id
-    else
-      record.creator_id == user.id
-    end
+    return record.dev_id == user.id if user.dev?
+    return record.qa_id == user.id if user.qa?
+    record.creator_id == user.id
   end
 
   def create?
-    user.admin? || user.user?
+    user.present? # any signed-in user can create
   end
 
   def update?
-    user.admin? || user.dev?
+    user.admin? || (user.dev? && record.dev_id == user.id)
   end
 
   def assign?
@@ -28,11 +23,13 @@ class TicketPolicy < ApplicationPolicy
   end
 
   def mark_done?
-    admin_or_qa?
+    user.admin? ||
+      (user.dev? && record.dev_id == user.id) ||
+      (user.qa? && record.qa_id == user.id)
   end
 
   def destroy?
-    user.admin?
+    user.admin? || (user.user? && record.creator_id == user.id)
   end
 
   class Scope < ApplicationPolicy::Scope
@@ -41,11 +38,13 @@ class TicketPolicy < ApplicationPolicy
       when "admin"
         scope.all
       when "dev"
-        scope.where(assigned_developer_id: user.id)
+        scope.where(dev_id: user.id)
       when "qa"
-        scope.where(assigned_qa_id: user.id)
+        scope.where(qa_id: user.id)
       when "user"
         scope.where(creator_id: user.id)
+      else
+        scope.none # return empty relation if role is unknown
       end
     end
   end
