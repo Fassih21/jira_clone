@@ -22,7 +22,7 @@ class TicketsController < ApplicationController
     @ticket.creator_id = current_user.id
     authorize @ticket
 
-    if @ticket.save
+    if @ticket.save!
       redirect_to tickets_path, notice: "Ticket created successfully."
     else
       @tickets = policy_scope(Ticket)
