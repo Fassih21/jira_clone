@@ -18,18 +18,20 @@ class TicketsController < ApplicationController
   end
 
   def create
-    @ticket = Ticket.new(ticket_params)
-    @ticket.creator_id = current_user.id
-    authorize @ticket
+  @ticket = Ticket.new(ticket_params)
+  @ticket.creator_id = current_user.id
+  authorize @ticket
 
-    if @ticket.save!
-      redirect_to tickets_path, notice: "Ticket created successfully."
-    else
-      @tickets = policy_scope(Ticket)
-      flash.now[:alert] = @ticket.errors.full_messages.join(", ")
-      render :index
-    end
+  byebug
+
+  @ticket.save!
+  redirect_to tickets_path, notice: "Ticket created successfully."
+  rescue ActiveRecord::RecordInvalid => e
+  @tickets = policy_scope(Ticket)
+  flash.now[:alert] = e.record.errors.full_messages.join(", ")
+  render :index
   end
+
 
   def edit
     authorize @ticket
