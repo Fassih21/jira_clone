@@ -1,6 +1,6 @@
 class TicketsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_ticket, only: %i[show edit update destroy mark_done]
+  before_action :set_ticket, only: %i[show edit update destroy]
   after_action :verify_authorized, except: :index
 
   def index
@@ -37,9 +37,11 @@ class TicketsController < ApplicationController
 
   def update
     authorize @ticket
+
     if @ticket.update(ticket_params)
-      redirect_to @ticket, notice: "Ticket updated successfully."
+      redirect_to tickets_path, notice: "Ticket updated successfully."
     else
+      flash.now[:alert] = @ticket.errors.full_messages.join(", ")
       render :edit
     end
   end
@@ -50,15 +52,6 @@ class TicketsController < ApplicationController
       redirect_to tickets_path, notice: "Ticket deleted successfully."
     else
       redirect_to ticket_path(@ticket), alert: "Unable to delete Ticket."
-    end
-  end
-
-  def mark_done
-    authorize @ticket, :mark_done?
-    if @ticket.update(status: "closed")
-      redirect_to tickets_path, notice: "Ticket marked as done."
-    else
-      redirect_to tickets_path, alert: "Unable to mark ticket as done."
     end
   end
 
