@@ -1,0 +1,30 @@
+<div class="container my-4">
+  <div class="card shadow-sm">
+    <div class="card-header">
+      <h2><%= @ticket.title %></h2>
+    </div>
+    <div class="card-body">
+      <p><strong>Description:</strong> <%= @ticket.description %></p>
+      <p><strong>Status:</strong> <%= @ticket.status.titleize %></p>
+      <p><strong>Developer:</strong> <%= @ticket.dev&.name || "Unassigned" %></p>
+      <p><strong>QA:</strong> <%= @ticket.qa&.name || "Unassigned" %></p>
+      <p><strong>Creator:</strong> <%= @ticket.creator&.name || "Unknown" %></p>
+
+      <div class="mt-4 d-flex gap-2">
+        <%= link_to "Back to Tickets", tickets_path, class: "btn btn-secondary" %>
+
+        <% if policy(@ticket).destroy? %>
+          <%= link_to "Delete Ticket", ticket_path(@ticket),
+                      data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete this ticket?" },
+                      class: "btn btn-danger" %>
+        <% end %>
+
+        <% if policy(@ticket).mark_done? && @ticket.status != "closed" %>
+          <%= link_to "Mark as Solved", mark_done_ticket_path(@ticket),
+                      data: { turbo_method: :patch, turbo_confirm: "Mark this ticket as solved?" },
+                      class: "btn btn-success" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
