@@ -24,13 +24,16 @@ class TicketsController < ApplicationController
 
   byebug
 
-  @ticket.save!
-  redirect_to tickets_path, notice: "Ticket created successfully."
+  begin
+    @ticket.save!
+    redirect_to tickets_path, notice: "Ticket created successfully."
   rescue ActiveRecord::RecordInvalid => e
-  @tickets = policy_scope(Ticket)
-  flash.now[:alert] = e.record.errors.full_messages.join(", ")
-  render :index
+    @tickets = policy_scope(Ticket)
+    flash.now[:alert] = e.record.errors.full_messages.join(", ")
+    render :index
   end
+  end
+
 
 
   def edit
