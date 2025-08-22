@@ -1,35 +1,34 @@
 class TicketPolicy < ApplicationPolicy
   def index?
-    user.present?
+    true
   end
 
   def show?
-    return true if user.admin?
-    return record.dev_id == user.id if user.dev?
-    return record.qa_id == user.id if user.qa?
-    record.creator_id == user.id
+    user.admin? ||
+      record.creator_id == user.id ||
+      record.dev_id == user.id ||
+      record.qa_id == user.id
   end
 
   def create?
-    user.present? # any signed-in user can create
+    true
   end
 
   def update?
-    user.admin? || (user.dev? && record.dev_id == user.id)
+    user.admin? ||
+      record.creator_id == user.id ||
+      record.dev_id == user.id ||
+      record.qa_id == user.id
   end
 
-  def assign?
-    user.admin?
+  def destroy?
+    user.admin? || record.creator_id == user.id
   end
 
   def mark_done?
     user.admin? ||
-      (user.dev? && record.dev_id == user.id) ||
-      (user.qa? && record.qa_id == user.id)
-  end
-
-  def destroy?
-    user.admin? || (user.user? && record.creator_id == user.id)
+      record.dev_id == user.id ||
+      record.qa_id == user.id
   end
 
   class Scope < ApplicationPolicy::Scope
@@ -38,13 +37,11 @@ class TicketPolicy < ApplicationPolicy
       when "admin"
         scope.all
       when "dev"
-        scope.where(dev_id: user.id)
+        scope.where("dev_id = ? OR creator_id = ?", user.id, user.id)
       when "qa"
-        scope.where(qa_id: user.id)
-      when "user"
-        scope.where(creator_id: user.id)
+        scope.where("qa_id = ? OR creator_id = ?", user.id, user.id)
       else
-        scope.none # return empty relation if role is unknown
+        scope.where(creator_id: user.id)
       end
     end
   end
