@@ -22,7 +22,7 @@
 
   <div class="field">
     <%= f.label :status %><br>
-    <%= f.select :status, ["open", "in_progress", "closed"], prompt: "Select status" %>
+    <%= f.select :status, Ticket::STATUSES, prompt: "Select status" %>
   </div>
 
   <div class="field">
