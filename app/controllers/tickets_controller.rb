@@ -1,6 +1,6 @@
 class TicketsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_ticket, only: %i[show edit update destroy]
+  before_action :set_ticket, only: %i[show edit update destroy mark_done]
   after_action :verify_authorized, except: :index
 
   def index
@@ -18,23 +18,18 @@ class TicketsController < ApplicationController
   end
 
   def create
-  @ticket = Ticket.new(ticket_params)
-  @ticket.creator_id = current_user.id
-  authorize @ticket
+    @ticket = Ticket.new(ticket_params)
+    @ticket.creator_id = current_user.id
+    authorize @ticket
 
-  byebug
-
-  begin
-    @ticket.save!
-    redirect_to tickets_path, notice: "Ticket created successfully."
-  rescue ActiveRecord::RecordInvalid => e
-    @tickets = policy_scope(Ticket)
-    flash.now[:alert] = e.record.errors.full_messages.join(", ")
-    render :index
+    if @ticket.save
+      redirect_to tickets_path, notice: "Ticket created successfully."
+    else
+      @tickets = policy_scope(Ticket)
+      flash.now[:alert] = @ticket.errors.full_messages.join(", ")
+      render :index
+    end
   end
-  end
-
-
 
   def edit
     authorize @ticket
@@ -42,7 +37,6 @@ class TicketsController < ApplicationController
 
   def update
     authorize @ticket
-
     if @ticket.update(ticket_params)
       redirect_to tickets_path, notice: "Ticket updated successfully."
     else
@@ -60,6 +54,15 @@ class TicketsController < ApplicationController
     end
   end
 
+  def mark_done
+    authorize @ticket
+    if @ticket.update(status: "closed")
+      redirect_to tickets_path, notice: "Ticket marked as done."
+    else
+      redirect_to ticket_path(@ticket), alert: "Unable to mark ticket as done."
+    end
+  end
+
   private
 
   def set_ticket
@@ -67,11 +70,6 @@ class TicketsController < ApplicationController
   end
 
   def ticket_params
-    params.require(:ticket)
-          .permit(:title, :description, :status, :assigned_developer_id, :assigned_qa_id)
-          .tap do |whitelisted|
-            whitelisted[:dev_id] = whitelisted.delete(:assigned_developer_id) if whitelisted[:assigned_developer_id]
-            whitelisted[:qa_id]  = whitelisted.delete(:assigned_qa_id) if whitelisted[:assigned_qa_id]
-          end
+    params.require(:ticket).permit(:title, :description, :status, :dev_id, :qa_id)
   end
 end

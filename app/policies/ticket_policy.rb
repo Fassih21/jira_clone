@@ -26,19 +26,16 @@ class TicketPolicy < ApplicationPolicy
   end
 
   def mark_done?
-    user.admin? ||
-      record.dev_id == user.id ||
-      record.qa_id == user.id
+    user.admin? || record.dev_id == user.id || record.qa_id == user.id
   end
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      case user.role
-      when "admin"
+      if user.admin?
         scope.all
-      when "dev"
+      elsif user.role == "dev"
         scope.where("dev_id = ? OR creator_id = ?", user.id, user.id)
-      when "qa"
+      elsif user.role == "qa"
         scope.where("qa_id = ? OR creator_id = ?", user.id, user.id)
       else
         scope.where(creator_id: user.id)
