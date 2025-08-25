@@ -31,6 +31,7 @@ class TicketPolicy < ApplicationPolicy
 
   class Scope < ApplicationPolicy::Scope
     def resolve
+      byebug
       if user.admin?
         scope.all
       elsif user.role == "dev"
