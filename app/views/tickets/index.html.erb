@@ -28,16 +28,20 @@
                   <p class="mb-0"><strong>QA:</strong> <%= ticket.qa&.name || "Unassigned" %></p>
                   <div class="mt-2">
                     <%= link_to "View", ticket_path(ticket), class: "btn btn-sm btn-outline-primary" %>
+                    
                     <% if policy(ticket).destroy? %>
                       <%= button_to "Delete", ticket_path(ticket),
                                     method: :delete,
                                     form: { data: { turbo_confirm: "Are you sure?" }, class: "d-inline" },
                                     class: "btn btn-sm btn-danger" %>
                     <% end %>
+
                     <% if policy(ticket).mark_done? && ticket.status != "closed" %>
-                      <%= link_to "Mark Done", mark_done_ticket_path(ticket),
-                                  data: { turbo_method: :patch, turbo_confirm: "Mark this ticket as done?" },
-                                  class: "btn btn-sm btn-success" %>
+                      <%= button_to "Mark Done", 
+                                    mark_done_ticket_path(ticket),
+                                    method: :patch,
+                                    form: { data: { turbo_confirm: "Mark this ticket as done?" }, class: "d-inline" },
+                                    class: "btn btn-sm btn-success" %>
                     <% end %>
                   </div>
                 </div>
@@ -63,7 +67,6 @@
             <div class="alert alert-danger"><%= flash[:alert] %></div>
           <% end %>
 
-          <!-- Corrected form_with -->
           <%= form_with(model: @ticket, local: true) do |f| %>
             <div class="mb-3">
               <%= f.label :title, class: "form-label" %>
