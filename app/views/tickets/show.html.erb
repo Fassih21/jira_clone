@@ -1,0 +1,75 @@
+<div class="container my-4">
+  <h1 class="fw-bold mb-3"><%= @ticket.title %></h1>
+  <p><strong>Description:</strong> <%= @ticket.description %></p>
+  <p><strong>Status:</strong> <%= @ticket.status.titleize %></p>
+  <p><strong>Developer:</strong> <%= @ticket.dev&.name || "Unassigned" %></p>
+  <p><strong>QA:</strong> <%= @ticket.qa&.name || "Unassigned" %></p>
+
+  <div class="mt-3">
+    <%= link_to "Back", tickets_path, class: "btn btn-outline-secondary" %>
+
+    <% if policy(@ticket).update? %>
+      <%= link_to "Edit", edit_ticket_path(@ticket), class: "btn btn-outline-primary" %>
+    <% end %>
+
+    <% if policy(@ticket).destroy? %>
+      <%= button_to "Delete", ticket_path(@ticket),
+                    method: :delete,
+                    form: { data: { turbo_confirm: "Are you sure?" }, class: "d-inline" },
+                    class: "btn btn-danger" %>
+    <% end %>
+
+    <% if policy(@ticket).mark_done? && @ticket.status != "closed" %>
+      <% btn_label =
+          if current_user.admin?
+            "Close Ticket"
+          elsif current_user.role == "dev"
+            "Start Work"
+          elsif current_user.role == "qa"
+            "Verify & Close"
+          else
+            "Mark Done"
+          end %>
+
+      <%= button_to btn_label,
+                    mark_done_ticket_path(@ticket),
+                    method: :patch,
+                    form: { data: { turbo_confirm: "Are you sure you want to #{btn_label.downcase}?" }, class: "d-inline" },
+                    class: "btn btn-success" %>
+    <% end %>
+  </div>
+
+  <!-- Comments Section -->
+  <div class="mt-5">
+    <h3>Comments</h3>
+    <div class="mb-3">
+      <% @ticket.comments.order(created_at: :desc).each do |comment| %>
+        <div class="card mb-2 shadow-sm">
+          <div class="card-body">
+            <p><strong><%= comment.user.name %>:</strong> <%= comment.body %></p>
+            <small class="text-muted"><%= comment.created_at.strftime("%d %b %Y %H:%M") %></small>
+
+            <% if comment.user == current_user || current_user.admin? %>
+              <%= button_to "Delete", ticket_comment_path(@ticket, comment),
+                            method: :delete,
+                            form: { data: { turbo_confirm: "Are you sure?" }, class: "d-inline" },
+                            class: "btn btn-sm btn-danger float-end" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <% if @ticket.comments.empty? %>
+        <p class="text-muted">No comments yet.</p>
+      <% end %>
+    </div>
+
+    <!-- Add Comment Form -->
+    <h4>Add a Comment</h4>
+    <%= form_with(model: [@ticket, Comment.new], local: true) do |f| %>
+      <div class="mb-3">
+        <%= f.text_area :body, class: "form-control", rows: 3, placeholder: "Write your comment here..." %>
+      </div>
+      <%= f.submit "Post Comment", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>
