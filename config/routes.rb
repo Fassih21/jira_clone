@@ -1,15 +1,15 @@
 Rails.application.routes.draw do
-  get "comments/create"
-  get "comments/destroy"
-  devise_for :users
+  devise_for :user
+
   resources :tickets do
-  member do
-    patch :mark_done
+    member do
+      patch :mark_done
+    end
+
+    resources :comments, only: [ :create, :destroy ]
   end
-end
 
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Root path
   root "tickets#index"
 end
