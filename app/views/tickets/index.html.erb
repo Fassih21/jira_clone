@@ -37,10 +37,21 @@
                     <% end %>
 
                     <% if policy(ticket).mark_done? && ticket.status != "closed" %>
-                      <%= button_to "Mark Done", 
+                      <% btn_label =
+                          if current_user.admin?
+                            "Close Ticket"
+                          elsif current_user.role == "dev"
+                            "Start Work"
+                          elsif current_user.role == "qa"
+                            "Verify & Close"
+                          else
+                            "Mark Done"
+                          end %>
+
+                      <%= button_to btn_label,
                                     mark_done_ticket_path(ticket),
                                     method: :patch,
-                                    form: { data: { turbo_confirm: "Mark this ticket as done?" }, class: "d-inline" },
+                                    form: { data: { turbo_confirm: "Are you sure you want to #{btn_label.downcase}?" }, class: "d-inline" },
                                     class: "btn btn-sm btn-success" %>
                     <% end %>
                   </div>
