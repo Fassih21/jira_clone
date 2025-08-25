@@ -11,7 +11,7 @@ class TicketPolicy < ApplicationPolicy
   end
 
   def create?
-    true
+    user.admin? || user.role == "user"
   end
 
   def update?
@@ -31,7 +31,6 @@ class TicketPolicy < ApplicationPolicy
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      byebug
       if user.admin?
         scope.all
       elsif user.role == "dev"
