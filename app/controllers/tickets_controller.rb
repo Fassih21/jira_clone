@@ -55,13 +55,26 @@ class TicketsController < ApplicationController
   end
 
   def mark_done
-    authorize @ticket
-    if @ticket.update(status: "closed")
-      redirect_to tickets_path, notice: "Ticket marked as done."
+  authorize @ticket
+
+  new_status =
+    if current_user.admin?
+      "closed"
+    elsif current_user.role == "dev"
+      "in_progress"
+    elsif current_user.role == "qa"
+      "closed"
     else
-      redirect_to ticket_path(@ticket), alert: "Unable to mark ticket as done."
+      @ticket.status
     end
+
+  if @ticket.update(status: new_status)
+    redirect_to tickets_path, notice: "Ticket updated to #{new_status.humanize}."
+  else
+    redirect_to ticket_path(@ticket), alert: "Unable to update ticket status."
   end
+  end
+
 
   private
 
