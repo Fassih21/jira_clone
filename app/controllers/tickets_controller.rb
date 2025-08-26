@@ -1,6 +1,6 @@
 class TicketsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_ticket, only: %i[show edit update destroy mark_done]
+  before_action :set_ticket, only: [ :show, :edit, :update, :destroy, :mark_done ]
   after_action :verify_authorized, except: :index
 
   def index
@@ -37,7 +37,18 @@ class TicketsController < ApplicationController
 
   def update
     authorize @ticket
+    old_status = @ticket.status
+
     if @ticket.update(ticket_params)
+      if old_status != @ticket.status
+        # save history if status changed
+        History.create(
+          from_status: old_status,
+          to_status: @ticket.status,
+          user_id: current_user.id,
+          ticket_id: @ticket.id
+        )
+      end
       redirect_to tickets_path, notice: "Ticket updated successfully."
     else
       flash.now[:alert] = @ticket.errors.full_messages.join(", ")
@@ -55,26 +66,32 @@ class TicketsController < ApplicationController
   end
 
   def mark_done
-  authorize @ticket
+    authorize @ticket
+    old_status = @ticket.status
 
-  new_status =
     if current_user.admin?
-      "closed"
+      new_status = "closed"
     elsif current_user.role == "dev"
-      "in_progress"
+      new_status = "in_progress"
     elsif current_user.role == "qa"
-      "closed"
+      new_status = "closed"
     else
-      @ticket.status
+      new_status = @ticket.status
     end
 
-  if @ticket.update(status: new_status)
-    redirect_to tickets_path, notice: "Ticket updated to #{new_status.humanize}."
-  else
-    redirect_to ticket_path(@ticket), alert: "Unable to update ticket status."
+    if @ticket.update(status: new_status)
+      # save history
+      History.create(
+        from_status: old_status,
+        to_status: new_status,
+        user_id: current_user.id,
+        ticket_id: @ticket.id
+      )
+      redirect_to tickets_path, notice: "Ticket updated to #{new_status.humanize}."
+    else
+      redirect_to ticket_path(@ticket), alert: "Unable to update ticket status."
+    end
   end
-  end
-
 
   private
 

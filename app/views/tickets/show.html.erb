@@ -88,4 +88,28 @@
       <%= f.submit "Post Comment", class: "btn btn-primary" %>
     <% end %>
   </div>
+
+  <!-- History Section -->
+  <div class="mt-5">
+    <h3>History</h3>
+
+    <% if @ticket.histories.any? %>
+      <% @ticket.histories.order(created_at: :desc).each do |history| %>
+        <div class="card mb-2 shadow-sm">
+          <div class="card-body">
+            <p>
+              <strong><%= history.user.name %></strong> 
+              changed status from 
+              <span class="text-danger"><%= history.from_status.titleize %></span> 
+              to 
+              <span class="text-success"><%= history.to_status.titleize %></span>.
+            </p>
+            <small class="text-muted"><%= history.created_at.strftime("%d %b %Y %H:%M") %></small>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-muted">No history records yet for this ticket.</p>
+    <% end %>
+  </div>
 </div>
