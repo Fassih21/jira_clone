@@ -1,6 +1,8 @@
 class CommentsController < ApplicationController
+  before_action :authenticate_user!
+  before_action :set_ticket
+
   def create
-    @ticket = Ticket.find(params[:ticket_id])
     @comment = @ticket.comments.new(comment_params)
     @comment.user = current_user
 
@@ -12,14 +14,18 @@ class CommentsController < ApplicationController
   end
 
   def destroy
-    @comment = Comment.find(params[:id])
+    @comment = @ticket.comments.find(params[:id])
     @comment.destroy
-    redirect_to @comment.ticket, notice: "Comment was successfully deleted."
+    redirect_to @ticket, notice: "Comment was successfully deleted."
   end
-end
 
-private
+  private
 
-def comment_params
-  params.require(:comment).permit(:title, :body)
+  def set_ticket
+    @ticket = Ticket.find(params[:ticket_id])
+  end
+
+  def comment_params
+    params.require(:comment).permit(:body)
+  end
 end
