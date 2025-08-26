@@ -51,8 +51,16 @@
         <% @ticket.comments.order(created_at: :desc).each do |comment| %>
           <div class="card mb-2 shadow-sm">
             <div class="card-body">
-              <p><strong><%= comment.user.name %>:</strong> <%= comment.body %></p>
-              <small class="text-muted"><%= comment.created_at.strftime("%d %b %Y %H:%M") %></small>
+              <% if comment.title.present? %>
+                <p><strong><%= comment.title %></strong></p>
+              <% end %>
+              <p>
+                <strong><%= comment.user.name %>:</strong>
+                <%= comment.body %>
+              </p>
+              <small class="text-muted">
+                <%= comment.created_at.strftime("%d %b %Y %H:%M") %>
+              </small>
 
               <% if comment.user == current_user || current_user.admin? %>
                 <%= button_to "Delete", ticket_comment_path(@ticket, comment),
@@ -70,7 +78,10 @@
 
     <!-- Add Comment Form -->
     <h4>Add a Comment</h4>
-    <%= form_with(url: ticket_comments_path(@ticket), local: true) do |f| %>
+    <%= form_with(model: [@ticket, Comment.new], local: true) do |f| %>
+      <div class="mb-3">
+        <%= f.text_field :title, class: "form-control", placeholder: "Comment title" %>
+      </div>
       <div class="mb-3">
         <%= f.text_area :body, class: "form-control", rows: 3, placeholder: "Write your comment here..." %>
       </div>
