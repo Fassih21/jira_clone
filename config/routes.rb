@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     member do
       patch :mark_done
     end
-
+    resources :histories, only: [ :index ]
     resources :comments, only: [ :create, :destroy ]
   end
 
