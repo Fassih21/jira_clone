@@ -10,7 +10,7 @@
   <div class="mt-3">
     <%= link_to "Back", tickets_path, class: "btn btn-outline-secondary" %>
 
-    <% if policy(@ticket).update? %>
+    <% if policy(@ticket).edit? %>
       <%= link_to "Edit", edit_ticket_path(@ticket), class: "btn btn-outline-primary" %>
     <% end %>
 

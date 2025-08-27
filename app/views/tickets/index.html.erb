@@ -28,7 +28,7 @@
                   <p class="mb-0"><strong>QA:</strong> <%= ticket.qa&.name || "Unassigned" %></p>
                   <div class="mt-2">
                     <%= link_to "View", ticket_path(ticket), class: "btn btn-sm btn-outline-primary" %>
-
+                    
                     <% if policy(ticket).destroy? %>
                       <%= button_to "Delete", ticket_path(ticket),
                                     method: :delete,

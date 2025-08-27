@@ -1,6 +1,6 @@
 class TicketsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_ticket, only: [ :show, :edit, :update, :destroy, :mark_done ]
+  before_action :set_ticket, only: %i[show edit update destroy mark_done]
   after_action :verify_authorized, except: :index
 
   def index
@@ -69,15 +69,16 @@ class TicketsController < ApplicationController
     authorize @ticket
     old_status = @ticket.status
 
-    if current_user.admin?
-      new_status = "closed"
-    elsif current_user.role == "dev"
-      new_status = "in_progress"
-    elsif current_user.role == "qa"
-      new_status = "closed"
-    else
-      new_status = @ticket.status
-    end
+    new_status =
+      if current_user.admin?
+        "closed"
+      elsif current_user.role == "dev"
+        "in_progress"
+      elsif current_user.role == "qa"
+        "closed"
+      else
+        @ticket.status
+      end
 
     if @ticket.update(status: new_status)
       # save history
