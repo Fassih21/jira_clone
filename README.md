@@ -1,24 +1,132 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Jira Clone-Ruby on Rails
 
-Things you may want to cover:
+This is a simple project management tool inspired by Jira and created using Ruby on Rails. It includes features like user login, different roles for users, a system for managing tickets, a place for comments, and a way to keep track of changes.
+**Features**
 
-* Ruby version
+User Authentication using Devise
 
-* System dependencies
+Role-based Access Control (Admin, Developer, Reporter)
 
-* Configuration
+Ticket Management: Create, assign, and track ticket status (To Do, In Progress, Done)
 
-* Database creation
+Comments System for collaborative updates
 
-* Database initialization
+History Tracking to record every status or assignment change
 
-* How to run the test suite
+Responsive UI using Bootstrap 
 
-* Services (job queues, cache servers, search engines, etc.)
+Clean RESTful Architecture with Rails 7 best practices
 
-* Deployment instructions
+**Tech Stack**
 
-* ...
+Ruby: 3.2.x
+
+Rails: 7.0.x
+
+Database: PostgreSQL
+
+Authentication: Devise
+
+Authorization: Pundit
+
+Front-end: Bootstrap 
+
+Other Gems: List notable ones
+
+Byebug
+
+Rubocop
+
+**Getting Started**
+
+Ensure you have installed:
+
+Ruby (via rbenv or rvm)
+
+Rails (gem install rails)
+
+Bundler (gem install bundler)
+
+PostgreSQL (with a running user/password)
+
+Setup Steps
+
+**Clone the repository**
+
+git clone https://github.com/Fassih21/jira_clone.git
+cd jira-clone
+
+**Install dependencies**
+
+bundle install
+
+
+**Configure database**
+
+Update config/database.yml with your PostgreSQL username/password.
+
+Create and migrate the database:
+
+rails db:create db:migrate db:seed
+
+
+Start the server
+
+bin/dev       
+# or
+rails server
+
+
+**Access the application**
+Visit http://localhost:3000
+ in your browser.
+
+
+Project Structure
+
+app/
+  controllers/
+    tickets_controller.rb
+    comments_controller.rb
+    ...
+  models/
+    ticket.rb
+    comment.rb
+    ...
+  views/
+    tickets/
+    comments/
+    ...
+  helpers/
+  services/      # if any custom services
+config/
+db/
+
+
+RESTful routes keep the code organized and predictable.
+
+Pundit policies ensure role-based access control.
+
+Concerns/Services (if used) help maintain DRY code.
+
+Testing
+
+rails test       # For Minitest
+# or
+bundle exec rspec  # If using RSpec
+
+
+**Contributing**
+Fork the repository
+
+Create a feature branch (git checkout -b feature-name)
+
+Commit your changes (git commit -m "Add feature")
+
+Push to your branch (git push origin feature-name)
+
+Create a Pull Request for review
+
+this is right should push it now?
