@@ -37,7 +37,18 @@ class TicketsController < ApplicationController
 
   def update
     authorize @ticket
+    old_status = @ticket.status
+
     if @ticket.update(ticket_params)
+      if old_status != @ticket.status
+        # save history if status changed
+        History.create(
+          from_status: old_status,
+          to_status: @ticket.status,
+          user_id: current_user.id,
+          ticket_id: @ticket.id
+        )
+      end
       redirect_to tickets_path, notice: "Ticket updated successfully."
     else
       flash.now[:alert] = @ticket.errors.full_messages.join(", ")
@@ -55,26 +66,33 @@ class TicketsController < ApplicationController
   end
 
   def mark_done
-  authorize @ticket
+    authorize @ticket
+    old_status = @ticket.status
 
-  new_status =
-    if current_user.admin?
-      "closed"
-    elsif current_user.role == "dev"
-      "in_progress"
-    elsif current_user.role == "qa"
-      "closed"
+    new_status =
+      if current_user.admin?
+        "closed"
+      elsif current_user.role == "dev"
+        "in_progress"
+      elsif current_user.role == "qa"
+        "closed"
+      else
+        @ticket.status
+      end
+
+    if @ticket.update(status: new_status)
+      # save history
+      History.create(
+        from_status: old_status,
+        to_status: new_status,
+        user_id: current_user.id,
+        ticket_id: @ticket.id
+      )
+      redirect_to tickets_path, notice: "Ticket updated to #{new_status.humanize}."
     else
-      @ticket.status
+      redirect_to ticket_path(@ticket), alert: "Unable to update ticket status."
     end
-
-  if @ticket.update(status: new_status)
-    redirect_to tickets_path, notice: "Ticket updated to #{new_status.humanize}."
-  else
-    redirect_to ticket_path(@ticket), alert: "Unable to update ticket status."
   end
-  end
-
 
   private
 
