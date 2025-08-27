@@ -1,0 +1,69 @@
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="fw-bold">Welcome to Jira</h1>
+    <% if policy(Ticket).create? %>
+      <%= link_to "Create Ticket", new_ticket_path, class: "btn btn-primary" %>
+    <% end %>
+  </div>
+  <hr>
+
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    <% Ticket::STATUSES.each do |status| %>
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-header text-center text-white <%= case status
+              when "open" then "bg-success"
+              when "in_progress" then "bg-warning"
+              when "closed" then "bg-danger"
+            end %>">
+            <%= status.titleize %>
+          </div>
+          <div class="card-body">
+            <% @tickets.select { |t| t.status == status }.each do |ticket| %>
+              <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title"><%= ticket.title %></h5>
+                  <p class="card-text"><%= truncate(ticket.description, length: 80) %></p>
+                  <p class="mb-0"><strong>Developer:</strong> <%= ticket.dev&.name || "Unassigned" %></p>
+                  <p class="mb-0"><strong>QA:</strong> <%= ticket.qa&.name || "Unassigned" %></p>
+                  <div class="mt-2">
+                    <%= link_to "View", ticket_path(ticket), class: "btn btn-sm btn-outline-primary" %>
+                    
+                    <% if policy(ticket).destroy? %>
+                      <%= button_to "Delete", ticket_path(ticket),
+                                    method: :delete,
+                                    form: { data: { turbo_confirm: "Are you sure?" }, class: "d-inline" },
+                                    class: "btn btn-sm btn-danger" %>
+                    <% end %>
+
+                    <% if policy(ticket).mark_done? && ticket.status != "closed" %>
+                      <% btn_label =
+                          if current_user.admin?
+                            "Close Ticket"
+                          elsif current_user.role == "dev"
+                            "Start Work"
+                          elsif current_user.role == "qa"
+                            "Verify & Close"
+                          else
+                            "Mark Done"
+                          end %>
+
+                      <%= button_to btn_label,
+                                    mark_done_ticket_path(ticket),
+                                    method: :patch,
+                                    form: { data: { turbo_confirm: "Are you sure you want to #{btn_label.downcase}?" }, class: "d-inline" },
+                                    class: "btn btn-sm btn-success" %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            <% if @tickets.none? { |t| t.status == status } %>
+              <p class="text-muted text-center mt-2">No tickets</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

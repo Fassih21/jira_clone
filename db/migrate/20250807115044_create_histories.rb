@@ -8,7 +8,7 @@ class CreateHistories < ActiveRecord::Migration[7.1]
 
       t.string :action, null: false
       t.text :changes, null: false
-      
+
       t.timestamps
     end
   end

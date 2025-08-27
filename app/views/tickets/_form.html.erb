@@ -1,0 +1,41 @@
+<%= form_with(model: @ticket, local: true) do |f| %>
+  <% if @ticket.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@ticket.errors.count, "error") %> prohibited this ticket from being saved:</h2>
+      <ul>
+        <% @ticket.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :title %><br>
+    <%= f.text_field :title %>
+  </div>
+
+  <div class="field">
+    <%= f.label :description %><br>
+    <%= f.text_area :description %>
+  </div>
+
+  <div class="field">
+    <%= f.label :status %><br>
+    <%= f.select :status, Ticket::STATUSES, prompt: "Select status" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :dev_id, "Assign Developer" %><br>
+    <%= f.collection_select :dev_id, User.where(role: "dev"), :id, :email, prompt: "Select a developer" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :qa_id, "Assign QA" %><br>
+    <%= f.collection_select :qa_id, User.where(role: "qa"), :id, :email, prompt: "Select a QA" %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
