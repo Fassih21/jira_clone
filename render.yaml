@@ -1,0 +1,28 @@
+databases:
+  - name: jira-clone-db
+    plan: free
+    databaseName: jira_production
+    user: jira
+
+services:
+  - type: web
+    name: jira-clone
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
+    envVars:
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: jira-clone-db
+          property: connectionString
+      - key: SOLID_QUEUE_IN_PUMA
+        value: "1"
+      - key: RAILS_LOG_LEVEL
+        value: info
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: RAILS_MAX_THREADS
+        value: "5"
